@@ -66,12 +66,21 @@ const verify = (req, res, next) => {
   const authHeader = req.headers.authorization
   if (authHeader) {
     const token = authHeader.split(' ')[1]
-    jwt.verify(token, 'secret', (err, user) => {
+    jwt.verify(token, 'accessSecret', (err, user) => {
       if (err) {
         res.status(401).json({ error: 'Invalid token' })
       }
       req.user = user
+    
+      if(parseInt(req.params.id)===parseInt(user.id))
+      {
       next()
+      }
+      else
+      {
+        res.status(401).json({ error: 'Not Authorized! ' })
+      }
+     
     })
   } else {
     res.status(401).json({ error: 'No token provided' })
@@ -110,7 +119,8 @@ app.post('/api/refresh', (req, res) => {
 })
 
 app.delete('/api/users/:id', verify, (req, res) => {
-  if (req.user.id === req.params.id || req.user.isAdmin) {
+  
+  if (parseInt(req.user.id) === parseInt(req.params.id) || req.user.isAdmin) {
     res.status(200).json({ message: 'User deleted' })
   } else {
     res.status(401).json("You don't have permission to delete this user")
