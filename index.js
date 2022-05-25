@@ -71,11 +71,15 @@ const verify = (req, res, next) => {
         res.status(401).json({ error: 'Invalid token' })
       }
       req.user = user
-    
       if(parseInt(req.params.id)===parseInt(user.id))
       {
       next()
       }
+      else if(user.isAdmin)
+      {
+        next()
+      }
+
       else
       {
         res.status(401).json({ error: 'Not Authorized! ' })
